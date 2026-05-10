@@ -30,22 +30,11 @@ export default function MvpPreview({
           type="button"
           onClick={onExpand}
           aria-label="Expand MVP preview"
-          className="flex items-center justify-center rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-900 hover:text-white"
+          className="flex items-center justify-center rounded-lg px-2 py-2 font-semibold tabular-nums leading-none text-neutral-400 transition-colors hover:bg-neutral-900 hover:text-white"
         >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-            />
-          </svg>
+          <span aria-hidden className="text-sm tracking-tight">
+            {"<<"}
+          </span>
         </button>
         <span
           className="mt-4 select-none px-1 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-600 [writing-mode:vertical-rl] rotate-180"
@@ -68,22 +57,11 @@ export default function MvpPreview({
             type="button"
             onClick={onMinimize}
             aria-label="Minimize MVP preview"
-            className="flex items-center justify-center rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-900 hover:text-neutral-200"
+            className="flex items-center justify-center rounded-md px-2 py-1.5 font-semibold tabular-nums leading-none text-neutral-500 transition-colors hover:bg-neutral-900 hover:text-neutral-200"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-              />
-            </svg>
+            <span aria-hidden className="text-xs tracking-tight">
+              {">>"}
+            </span>
           </button>
         </div>
       </div>

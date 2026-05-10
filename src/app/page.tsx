@@ -14,6 +14,8 @@ interface AgentEntry {
   done: boolean;
 }
 
+const SWE_AGENT_IDS = new Set(["SWE1", "SWE2"]);
+
 export default function Home() {
   const [idea, setIdea] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -168,6 +170,9 @@ export default function Home() {
 
   const showPreview = prototype !== null;
 
+  const agentsMain = agents.filter((a) => !SWE_AGENT_IDS.has(a.id));
+  const agentsSwe = agents.filter((a) => SWE_AGENT_IDS.has(a.id));
+
   return (
     <div className="flex h-screen bg-black text-white">
       {/* Main panel */}
@@ -206,7 +211,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="divide-y divide-neutral-800/40">
-              {agents.map((a) => (
+              {agentsMain.map((a) => (
                 <AgentBlock
                   key={a.id + a.label}
                   label={a.label}
@@ -222,6 +227,16 @@ export default function Home() {
                   <CompetitorList competitors={research.competitors} />
                 </>
               )}
+
+              {agentsSwe.map((a) => (
+                <AgentBlock
+                  key={a.id + a.label}
+                  label={a.label}
+                  content={a.content}
+                  isActive={activeAgent === a.id}
+                  isDone={a.done}
+                />
+              ))}
 
               {gatePrompt && !running && (
                 <div className="px-4 py-5">
