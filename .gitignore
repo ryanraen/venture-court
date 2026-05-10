@@ -1,0 +1,8 @@
+.env*
+.venv/
+venv/
+.DS_Store
+__pycache__/
+.cursor/
+.vscode/
+node_modules/
