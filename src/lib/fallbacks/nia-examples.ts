@@ -8,44 +8,40 @@ function getJobDemoResearchData(idea: string): ResearchData {
   return {
     cards: [
       {
-        title: "Enhance Your Job Prospects with AI Resume Tips — how I used ChatGPT to land 3 offers",
+        title: "How to Use ChatGPT to Write a Cover Letter",
+        url: "https://www.youtube.com/watch?v=-kgAFH7nZYs",
+        source: "YouTube",
+        viralitySignal: "100K+ views",
+      },
+      {
+        title: "Write Your Cover Letter In SECONDS With ChatGPT — Full Tutorial",
+        url: "https://www.youtube.com/watch?v=fpxR9pCMAps",
+        source: "YouTube",
+        viralitySignal: "49K+ views",
+      },
+      {
+        title: "AI resume tips — how I used ChatGPT to land 3 offers",
         url: "https://www.tiktok.com/@acdoesai/video/7522922914635582733",
         source: "TikTok",
+        viralitySignal: "direct TikTok video",
       },
       {
-        title: "How to use DeepSeek to write your resume — going viral with AI job hacks",
-        url: "https://www.tiktok.com/discover/how-to-use-deepseek-to-write-your-resume",
+        title: "Career TikTok: AI resume and cover letter workflow",
+        url: "https://www.tiktok.com/@careercoachdarci/video/7314311652924677419",
         source: "TikTok",
-      },
-      {
-        title: "How to Use AI to Update Your Work Resume — step-by-step walkthrough",
-        url: "https://www.tiktok.com/discover/how-to-use-ai-to-update-your-work-resume",
-        source: "TikTok",
-      },
-      {
-        title: "ChatGPT Prompts for Resume Based on Job Description — the exact prompts I use",
-        url: "https://www.tiktok.com/discover/chat-gpt-prompts-for-resume-based-on-job-description",
-        source: "TikTok",
+        viralitySignal: "career TikTok format",
       },
       {
         title: "I've Reviewed 1,000+ Resumes — Here's How to Use AI to Land More Interviews",
         url: "https://www.youtube.com/watch?v=KprWxa9WtIk",
         source: "YouTube",
+        viralitySignal: "high-intent tutorial",
       },
       {
         title: "How ChatGPT Helped Me Get 800% More Job Interviews — Full CV & Cover Letter Tutorial",
         url: "https://www.youtube.com/watch?v=XvtHdIRh26Q",
         source: "YouTube",
-      },
-      {
-        title: "HOW TO: Using AI to Tailor Your Resume and Cover Letter for every application",
-        url: "https://www.youtube.com/watch?v=z8wArFMYtQI",
-        source: "YouTube",
-      },
-      {
-        title: "I've Reviewed 100s of Cover Letters — Here's How to Use AI to Land More Interviews",
-        url: "https://www.youtube.com/watch?v=gIRhLMgexiw",
-        source: "YouTube",
+        viralitySignal: "reported 800% interview lift",
       },
     ],
     competitors: [
@@ -94,40 +90,51 @@ SATURATED category: SEO, ads, and influencers are expensive. Hiring managers inc
   };
 }
 
-/** Nutrition / meal-photo / macro tracking — real brands + discover/search links. */
+/** Nutrition / meal-photo / macro tracking — direct viral nutrition videos. */
 function getNutritionDemoResearchData(idea: string): ResearchData {
-  const q = enc(idea);
   return {
     cards: [
       {
-        title: "TikTok: food calorie tracker & meal photo trends",
-        url: `https://www.tiktok.com/search?q=${q}`,
+        title: "What I eat in a day — 1391 calories and 129g protein",
+        url: "https://www.tiktok.com/@lucyolivial/video/7464848376694197536",
         source: "TikTok",
+        viralitySignal: "TikTok what-I-eat format",
       },
       {
-        title: "TikTok discover: calorie counting & nutrition hacks",
-        url: "https://www.tiktok.com/discover/calorie-counting-app",
+        title: "Macro tracking grocery haul and healthy food shop inspo",
+        url: "https://www.tiktok.com/@lilyanderson2.0/video/7590326224711421206",
         source: "TikTok",
+        viralitySignal: "TikTok macro-tracking format",
       },
       {
-        title: "YouTube search: AI food recognition & macro estimation",
-        url: `https://www.youtube.com/results?search_query=${q}`,
+        title: "High-protein meal with calorie and macro breakdown",
+        url: "https://www.tiktok.com/@victoriamaefit/video/7240652507700219182",
+        source: "TikTok",
+        viralitySignal: "TikTok meal macro breakdown",
+      },
+      {
+        title: "The 100,000 Calorie Challenge",
+        url: "https://www.youtube.com/watch?v=dKlWgmhOvpM",
         source: "YouTube",
+        viralitySignal: "viral calorie challenge",
       },
       {
-        title: "YouTube: meal prep macros & tracking for beginners",
-        url: "https://www.youtube.com/results?search_query=macro+tracking+meal+prep",
+        title: "The Best Science-Based Diet to Build Lean Muscle (All Meals Shown)",
+        url: "https://www.youtube.com/watch?v=oPRrl-ZhrJQ",
         source: "YouTube",
+        viralitySignal: "million-view nutrition format",
       },
       {
-        title: "CNET: best nutrition apps & calorie counters (roundups)",
-        url: "https://www.cnet.com/health-fitness/nutrition/best-nutrition-apps-to-track-your-eating/",
-        source: "Web",
+        title: "MyFitnessPal 2026 Guide: Track Macros and Calories",
+        url: "https://www.youtube.com/watch?v=e9K9MmIjj4M",
+        source: "YouTube",
+        viralitySignal: "8K+ views",
       },
       {
-        title: "Healthline: how calorie-counting apps work & accuracy limits",
-        url: "https://www.healthline.com/nutrition/best-calorie-counters",
-        source: "Web",
+        title: "2 months of Intermittent Fasting Weigh In + What I Ate",
+        url: "https://www.youtube.com/watch?v=qUoFkOzek74",
+        source: "YouTube",
+        viralitySignal: "direct diet-tracking video",
       },
     ],
     competitors: [
@@ -178,30 +185,58 @@ Food CV is **hard**: hidden oils, ethnic dishes, buffets, and shared plates brea
   };
 }
 
-/** Idea-agnostic: real search surfaces so content always matches the prompt in the URL. */
+/** Idea-agnostic: hardcoded broad startup/product videos, not search pages. */
 function getGenericDemoResearchData(idea: string): ResearchData {
   const q = enc(idea);
   return {
     cards: [
       {
-        title: `TikTok search: ${idea.slice(0, 60)}${idea.length > 60 ? "…" : ""}`,
-        url: `https://www.tiktok.com/search?q=${q}`,
+        title: "Startup advice for founders: essential tips to succeed",
+        url: "https://www.tiktok.com/@sabrina_ramonov/video/7577881892066708767",
         source: "TikTok",
+        viralitySignal: "startup TikTok advice",
       },
       {
-        title: `YouTube search: ${idea.slice(0, 60)}${idea.length > 60 ? "…" : ""}`,
-        url: `https://www.youtube.com/results?search_query=${q}`,
+        title: "Alex Hormozi: biggest piece of advice for startup software businesses",
+        url: "https://www.tiktok.com/@ahormozi/video/7229032803021737259",
+        source: "TikTok",
+        viralitySignal: "founder TikTok advice",
+      },
+      {
+        title: "Justin Kan: when and how to sell your startup",
+        url: "https://www.tiktok.com/@justinkan/video/7056194096947432750",
+        source: "TikTok",
+        viralitySignal: "founder exit advice",
+      },
+      {
+        title: "Marc Randolph: quick, cheap validation before building",
+        url: "https://www.tiktok.com/@marc_randolph/video/7079079298182909230",
+        source: "TikTok",
+        viralitySignal: "startup validation advice",
+      },
+      {
+        title: "The single biggest reason why startups succeed — Bill Gross",
+        url: "https://www.youtube.com/watch?v=bNpx7gpSqbY",
         source: "YouTube",
+        viralitySignal: "TED-style viral startup talk",
       },
       {
-        title: "Google News — startup & product coverage (broad discovery)",
-        url: `https://news.google.com/search?q=${q}&hl=en-US&gl=US&ceid=US:en`,
-        source: "Web",
+        title: "How to Get Startup Ideas — Y Combinator",
+        url: "https://www.youtube.com/watch?v=Th8JoIan4dg",
+        source: "YouTube",
+        viralitySignal: "direct startup advice video",
       },
       {
-        title: "Product Hunt — recent launches (find adjacent products)",
-        url: "https://www.producthunt.com/search?q=" + q,
-        source: "Web",
+        title: "How Airbnb designs for trust — Joe Gebbia",
+        url: "https://www.youtube.com/watch?v=16cM-RFid9U",
+        source: "YouTube",
+        viralitySignal: "viral product/design talk",
+      },
+      {
+        title: "How great leaders inspire action — Simon Sinek",
+        url: "https://www.youtube.com/watch?v=qp0HIF3SfI4",
+        source: "YouTube",
+        viralitySignal: "multi-million-view positioning talk",
       },
     ],
     competitors: [
@@ -218,7 +253,7 @@ function getGenericDemoResearchData(idea: string): ResearchData {
     ],
     synthesis: `**Market Research (demo) for:** "${idea}"
 
-This scripted bundle uses **real search & discovery URLs** (see cards) so every link is tied to your exact words. Use them to skim social proof, messaging angles, and competitor positioning.
+This scripted bundle uses **direct viral startup/product videos** (not search pages) as broad signal examples. For niche-specific viral posts, enable live Nia research with a query that has enough social volume.
 
 **Next with live data:** connect Nia or manual research to replace generic competitor rows with verified companies in your vertical.`,
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { PrototypeFiles } from "@/lib/types";
 
 type Props = {
@@ -22,6 +23,36 @@ export default function MvpPreview({
 <script>${files.js}<\/script>
 </body>
 </html>`;
+
+  const handleDownload = useCallback(() => {
+    const fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP Prototype</title>
+<style>
+${files.css}
+</style>
+</head>
+<body>
+${files.html.replace(/<!DOCTYPE html>|<\/?html>|<\/?head>|<meta[^>]*>|<title>[^<]*<\/title>|<link[^>]*>/gi, "")}
+<script>
+${files.js}
+<\/script>
+</body>
+</html>`;
+
+    const blob = new Blob([fullHtml], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "prototype.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [files]);
 
   if (minimized) {
     return (
@@ -51,8 +82,18 @@ export default function MvpPreview({
         <span className="text-xs font-medium uppercase tracking-wider text-neutral-400">
           MVP Preview
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <span className="text-[10px] text-neutral-600">sandboxed</span>
+          <button
+            type="button"
+            onClick={handleDownload}
+            aria-label="Download prototype"
+            className="flex items-center justify-center rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-900 hover:text-neutral-200"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" />
+            </svg>
+          </button>
           <button
             type="button"
             onClick={onMinimize}

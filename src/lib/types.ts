@@ -29,6 +29,7 @@ export interface ResearchCard {
   url: string;
   source: string;
   thumbnail?: string;
+  viralitySignal?: string;
 }
 
 export interface Competitor {

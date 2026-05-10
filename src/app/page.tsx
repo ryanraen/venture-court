@@ -32,6 +32,9 @@ export default function Home() {
   const [pendingGateStage, setPendingGateStage] = useState<Stage | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  /** Bumped on Summon start and Reset so stray SSE tails never mutate state after reset */
+  const flowGenerationRef = useRef(0);
+  const streamAbortRef = useRef<AbortController | null>(null);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -45,127 +48,194 @@ export default function Home() {
   useEffect(scrollToBottom, [agents, research, gatePrompt, scrollToBottom]);
 
   const runAction = useCallback(
-    async (sid: string, action: string) => {
+    async (sid: string, action: string, signal: AbortSignal, generation: number) => {
+      if (generation !== flowGenerationRef.current) return;
+
+      const stillThisFlow = () => generation === flowGenerationRef.current;
+
       setRunning(true);
       setGatePrompt(null);
       setPendingGateStage(null);
 
-      const res = await fetch("/api/council/stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: sid, action }),
-      });
+      try {
+        const res = await fetch("/api/council/stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: sid, action }),
+          signal,
+        });
 
-      if (!res.ok || !res.body) {
-        setRunning(false);
-        return;
-      }
+        if (!stillThisFlow()) return;
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
+        if (!res.ok || !res.body) {
+          if (stillThisFlow()) setRunning(false);
+          return;
+        }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
 
-        const lines = buffer.split("\n\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          const raw = line.replace(/^data: /, "").trim();
-          if (!raw) continue;
-          let event: SSEEvent;
+        while (stillThisFlow()) {
+          let readChunk;
           try {
-            event = JSON.parse(raw);
+            readChunk = await reader.read();
           } catch {
-            continue;
+            break;
           }
+          const { done, value } = readChunk;
+          if (done) break;
 
-          switch (event.type) {
-            case "meta":
-              setSource(event.source);
-              break;
+          buffer += decoder.decode(value, { stream: true });
 
-            case "agent_start":
-              setActiveAgent(event.agent);
-              setAgents((prev) => [
-                ...prev,
-                { id: event.agent, label: event.label, content: "", done: false },
-              ]);
-              break;
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() || "";
 
-            case "chunk":
-              setAgents((prev) => {
-                const copy = [...prev];
-                const last = copy[copy.length - 1];
-                if (last) copy[copy.length - 1] = { ...last, content: last.content + event.content };
-                return copy;
-              });
+          for (const line of lines) {
+            if (!stillThisFlow()) {
+              reader.cancel().catch(() => {});
               break;
+            }
+            const raw = line.replace(/^data: /, "").trim();
+            if (!raw) continue;
+            let event: SSEEvent;
+            try {
+              event = JSON.parse(raw);
+            } catch {
+              continue;
+            }
 
-            case "agent_done":
-              setActiveAgent(null);
-              setAgents((prev) =>
-                prev.map((a) =>
-                  a.id === event.agent ? { ...a, done: true } : a
-                )
-              );
-              break;
+            switch (event.type) {
+              case "meta":
+                setSource(event.source);
+                break;
 
-            case "research_data":
-              setResearch(event.data);
-              break;
+              case "agent_start":
+                setActiveAgent(event.agent);
+                setAgents((prev) => [
+                  ...prev,
+                  { id: event.agent, label: event.label, content: "", done: false },
+                ]);
+                break;
 
-            case "prototype_ready":
-              setPrototype(event.files);
-              break;
+              case "chunk":
+                setAgents((prev) => {
+                  const copy = [...prev];
+                  const last = copy[copy.length - 1];
+                  if (last) copy[copy.length - 1] = { ...last, content: last.content + event.content };
+                  return copy;
+                });
+                break;
 
-            case "gate":
-              setGatePrompt(event.prompt);
-              setPendingGateStage(event.stage);
-              break;
+              case "agent_done":
+                setActiveAgent(null);
+                setAgents((prev) =>
+                  prev.map((a) =>
+                    a.id === event.agent ? { ...a, done: true } : a
+                  )
+                );
+                break;
 
-            case "stage_complete":
-              setStage(event.stage);
-              break;
+              case "research_data":
+                setResearch(event.data);
+                break;
+
+              case "prototype_ready":
+                setPrototype(event.files);
+                break;
+
+              case "gate":
+                setGatePrompt(event.prompt);
+                setPendingGateStage(event.stage);
+                break;
+
+              case "stage_complete":
+                setStage(event.stage);
+                break;
+            }
           }
         }
+      } catch (err: unknown) {
+        const aborted =
+          signal.aborted ||
+          (err instanceof Error && (err.name === "AbortError" || err.message.includes("abort")));
+        if (!aborted && stillThisFlow()) console.error(err);
+      } finally {
+        if (stillThisFlow()) setRunning(false);
       }
-
-      setRunning(false);
     },
     []
   );
 
+  const abortStream = useCallback(() => {
+    streamAbortRef.current?.abort();
+    streamAbortRef.current = null;
+  }, []);
+
+  const handleReset = useCallback(() => {
+    abortStream();
+    flowGenerationRef.current += 1;
+    setRunning(false);
+    setSessionId(null);
+    setStage("idle");
+    setAgents([]);
+    setActiveAgent(null);
+    setResearch(null);
+    setPrototype(null);
+    setGatePrompt(null);
+    setPendingGateStage(null);
+    setPreviewMinimized(false);
+    setSource("demo");
+  }, [abortStream]);
+
   const handleSummon = useCallback(async () => {
     if (!idea.trim() || running) return;
+
+    abortStream();
+    flowGenerationRef.current += 1;
+    const generation = flowGenerationRef.current;
+    const ac = new AbortController();
+    streamAbortRef.current = ac;
+    const signal = ac.signal;
 
     const res = await fetch("/api/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idea: idea.trim() }),
-    });
+      signal,
+    }).catch(() => null);
+    if (generation !== flowGenerationRef.current || !res?.ok) {
+      if (generation === flowGenerationRef.current) setRunning(false);
+      abortStream();
+      return;
+    }
     const session = await res.json();
+    if (generation !== flowGenerationRef.current) return;
+
     setSessionId(session.id);
     setStage("ideation_cmo");
     setAgents([]);
     setResearch(null);
     setPrototype(null);
 
-    await runAction(session.id, "ideation_cmo");
-    await runAction(session.id, "ideation_cto");
-    await runAction(session.id, "ideation_ceo");
-  }, [idea, running, runAction]);
+    await runAction(session.id, "ideation_cmo", signal, generation);
+    if (signal.aborted || generation !== flowGenerationRef.current) return;
+    await runAction(session.id, "ideation_cto", signal, generation);
+    if (signal.aborted || generation !== flowGenerationRef.current) return;
+    await runAction(session.id, "ideation_ceo", signal, generation);
+  }, [idea, running, runAction, abortStream]);
 
   const handleProceed = useCallback(async () => {
-    if (!sessionId) return;
+    if (!sessionId || !streamAbortRef.current) return;
+    const generation = flowGenerationRef.current;
+    const signal = streamAbortRef.current.signal;
+
     if (pendingGateStage === "gate_research") {
-      await runAction(sessionId, "market_research");
+      await runAction(sessionId, "market_research", signal, generation);
     } else if (pendingGateStage === "gate_prototype") {
-      await runAction(sessionId, "prototyping_build");
-      await runAction(sessionId, "prototyping_review");
+      await runAction(sessionId, "prototyping_build", signal, generation);
+      if (signal.aborted || generation !== flowGenerationRef.current) return;
+      await runAction(sessionId, "prototyping_review", signal, generation);
     }
   }, [sessionId, pendingGateStage, runAction]);
 
@@ -307,6 +377,15 @@ export default function Home() {
               )}
               Summon Council
             </button>
+            {stage !== "idle" && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="px-5 py-2.5 rounded-lg border border-neutral-700 text-sm font-semibold text-neutral-200 hover:bg-neutral-900 transition-colors whitespace-nowrap"
+              >
+                Reset
+              </button>
+            )}
           </div>
         </div>
       </div>

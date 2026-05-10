@@ -6,8 +6,16 @@ export function ViralCards({ cards }: { cards: ResearchCard[] }) {
   return (
     <div className="px-4 py-3">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-3">
-        Viral Content ({cards.length} results)
+        Verified Viral Content ({cards.length} results)
       </h3>
+      {cards.length === 0 && (
+        <div className="rounded-lg border border-neutral-800 p-3">
+          <p className="text-xs leading-relaxed text-neutral-500">
+            No direct posts or videos with clear viral signals were found. Generic
+            search, discover, channel, and results pages were filtered out.
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {cards.map((card, i) => (
           <a
@@ -30,6 +38,7 @@ export function ViralCards({ cards }: { cards: ResearchCard[] }) {
               </p>
               <p className="text-[10px] text-neutral-500 mt-1">
                 {card.source}
+                {card.viralitySignal ? ` · ${card.viralitySignal}` : ""}
               </p>
             </div>
           </a>
