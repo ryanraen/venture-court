@@ -3,6 +3,10 @@
 import { useCallback } from "react";
 import { PrototypeFiles } from "@/lib/types";
 
+function escapeScriptClose(js: string): string {
+  return js.replace(/<\/script/gi, "<\\/script");
+}
+
 type Props = {
   files: PrototypeFiles;
   minimized: boolean;
@@ -16,11 +20,12 @@ export default function MvpPreview({
   onMinimize,
   onExpand,
 }: Props) {
+  const safeJs = escapeScriptClose(files.js);
   const srcDoc = `<!DOCTYPE html>
 <html>
 <head><style>${files.css}</style></head>
 <body>${files.html.replace(/<!DOCTYPE html>|<\/?html>|<\/?head>|<meta[^>]*>|<title>[^<]*<\/title>|<link[^>]*>/gi, "")}
-<script>${files.js}<\/script>
+<script>${safeJs}</script>
 </body>
 </html>`;
 
@@ -38,8 +43,8 @@ ${files.css}
 <body>
 ${files.html.replace(/<!DOCTYPE html>|<\/?html>|<\/?head>|<meta[^>]*>|<title>[^<]*<\/title>|<link[^>]*>/gi, "")}
 <script>
-${files.js}
-<\/script>
+${escapeScriptClose(files.js)}
+</script>
 </body>
 </html>`;
 

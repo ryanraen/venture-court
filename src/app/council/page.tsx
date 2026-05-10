@@ -110,6 +110,7 @@ function CouncilInner() {
   /** Bumped on Summon start and Reset so stray SSE tails never mutate state after reset */
   const flowGenerationRef = useRef(0);
   const streamAbortRef = useRef<AbortController | null>(null);
+  const proceedingRef = useRef(false);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -309,16 +310,21 @@ function CouncilInner() {
   }, [initialIdea, stage, running, handleSummon]);
 
   const handleProceed = useCallback(async () => {
-    if (!sessionId || !streamAbortRef.current) return;
-    const generation = flowGenerationRef.current;
-    const signal = streamAbortRef.current.signal;
+    if (!sessionId || !streamAbortRef.current || proceedingRef.current) return;
+    proceedingRef.current = true;
+    try {
+      const generation = flowGenerationRef.current;
+      const signal = streamAbortRef.current.signal;
 
-    if (pendingGateStage === "gate_research") {
-      await runAction(sessionId, "market_research", signal, generation);
-    } else if (pendingGateStage === "gate_prototype") {
-      await runAction(sessionId, "prototyping_build", signal, generation);
-      if (signal.aborted || generation !== flowGenerationRef.current) return;
-      await runAction(sessionId, "prototyping_review", signal, generation);
+      if (pendingGateStage === "gate_research") {
+        await runAction(sessionId, "market_research", signal, generation);
+      } else if (pendingGateStage === "gate_prototype") {
+        await runAction(sessionId, "prototyping_build", signal, generation);
+        if (signal.aborted || generation !== flowGenerationRef.current) return;
+        await runAction(sessionId, "prototyping_review", signal, generation);
+      }
+    } finally {
+      proceedingRef.current = false;
     }
   }, [sessionId, pendingGateStage, runAction]);
 

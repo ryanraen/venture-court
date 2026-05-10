@@ -8,7 +8,11 @@ export async function POST(req: NextRequest) {
   if (!idea || typeof idea !== "string") {
     return NextResponse.json({ error: "idea is required" }, { status: 400 });
   }
-  const session = createSession(idea.trim());
+  const trimmed = idea.trim();
+  if (trimmed.length > 1000) {
+    return NextResponse.json({ error: "idea must be 1000 characters or fewer" }, { status: 400 });
+  }
+  const session = createSession(trimmed);
   return NextResponse.json(session);
 }
 

@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
 
         case "prototyping_review": {
           updateStage(sessionId, "prototyping_review");
-          const { source, review } = await getSWE2(session.idea);
+          const { source, review } = await getSWE2(session.idea, session.artifacts.prototype);
           await write({ type: "meta", source });
 
           await write({

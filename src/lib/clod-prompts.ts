@@ -100,7 +100,7 @@ The page should feel like a real product landing page, not a placeholder. Tailor
 
 // ── SWE2 (Code Review) ──────────────────────────────────────────────
 
-export function swe2Prompt(idea: string) {
+export function swe2Prompt(idea: string, code?: { html: string; css: string; js: string }) {
   const system = `You are SWE 2, a senior engineer performing a code review of an MVP landing page built for a startup idea. Write a structured code review in markdown.
 
 Structure:
@@ -120,7 +120,10 @@ One paragraph summarizing overall quality and whether to ship.
 
 Be specific — reference actual page elements, CSS patterns, and JS behavior. 200–350 words total.`;
 
-  const user = `Review the MVP landing page built for: "${idea}"`;
+  let user = `Review the MVP landing page built for: "${idea}"`;
+  if (code) {
+    user += `\n\n--- HTML ---\n${code.html}\n\n--- CSS ---\n${code.css}\n\n--- JS ---\n${code.js}`;
+  }
 
   return { system, user, maxTokens: 2048 };
 }
