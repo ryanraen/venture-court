@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import MarkdownBody from "./MarkdownBody";
 
 interface AgentBlockProps {
   label: string;
@@ -57,10 +58,13 @@ export default function AgentBlock({
       </button>
       {!collapsed && content && (
         <div className="px-4 pb-3 pl-8">
-          <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap prose-sm">
-            {content}
+          <div className="inline-block max-w-full min-w-0 text-sm">
+            <MarkdownBody>{content}</MarkdownBody>
             {isActive && (
-              <span className="inline-block w-1.5 h-4 bg-white ml-0.5 animate-pulse align-text-bottom" />
+              <span
+                className="ml-0.5 inline-block h-4 w-1 animate-pulse bg-white align-[-0.15em]"
+                aria-hidden
+              />
             )}
           </div>
         </div>
