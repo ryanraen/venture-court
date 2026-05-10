@@ -231,7 +231,7 @@ function StreamingLog() {
   );
 }
 
-function FloatingAgent({ name, x, y, delay }: { name: string; x: string; y: string; delay: number }) {
+function FloatingAgent({ name, color, x, y, delay }: { name: string; color: string; x: string; y: string; delay: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -242,7 +242,7 @@ function FloatingAgent({ name, x, y, delay }: { name: string; x: string; y: stri
     >
       <div className="animate-float" style={{ animationDelay: `${delay}s` }}>
         <div className="glass relative flex items-center gap-2 rounded-lg px-3 py-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-foreground/50" />
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: color }} />
           <span className="mono text-[11px] font-medium tracking-wide">{name}</span>
         </div>
       </div>
@@ -262,10 +262,10 @@ function Hero() {
     <section className="relative isolate overflow-hidden pt-36 pb-24">
       <BackgroundFX />
       <div className="relative mx-auto max-w-6xl px-4">
-        <FloatingAgent name="CEO"        x="6%"  y="60px"  delay={0.2} />
-        <FloatingAgent name="CMO"        x="84%" y="40px"  delay={0.5} />
-        <FloatingAgent name="CTO"        x="2%"  y="320px" delay={0.8} />
-        <FloatingAgent name="CONTRARIAN" x="86%" y="300px" delay={1.1} />
+        <FloatingAgent name="CEO"        color="#a78bfa" x="6%"  y="60px"  delay={0.2} />
+        <FloatingAgent name="CMO"        color="#60a5fa" x="84%" y="40px"  delay={0.5} />
+        <FloatingAgent name="CTO"        color="#34d399" x="2%"  y="320px" delay={0.8} />
+        <FloatingAgent name="CONTRARIAN" color="#f87171" x="86%" y="300px" delay={1.1} />
 
         <motion.div initial="hidden" animate="show" variants={fadeUp} className="mx-auto max-w-3xl text-center">
           <Pill>Multi-agent AI startup council</Pill>
@@ -392,12 +392,12 @@ function HowItWorks() {
 /* ------------------------------ AI Council Cards ----------------------------- */
 
 const AGENTS = [
-  { name: "CEO",        role: "Strategic Orchestrator", quote: "Synthesizing council verdict…" },
-  { name: "CMO",        role: "Market Strategist",      quote: "TAM ≈ $2.4B. Wedge: prosumer." },
-  { name: "CTO",        role: "Technical Architect",    quote: "Stack ready. Build path clear." },
-  { name: "CONTRARIAN", role: "Devil's Advocate",       quote: "Distribution risk too high." },
-  { name: "SWE-1",      role: "Builder Agent",          quote: "Scaffolded 14 files…" },
-  { name: "SWE-2",      role: "Reviewer Agent",         quote: "All checks passing ✓" },
+  { name: "CEO",        role: "Strategic Orchestrator", color: "#a78bfa", quote: "Synthesizing council verdict…" },
+  { name: "CMO",        role: "Market Strategist",      color: "#60a5fa", quote: "TAM ≈ $2.4B. Wedge: prosumer." },
+  { name: "CTO",        role: "Technical Architect",    color: "#34d399", quote: "Stack ready. Build path clear." },
+  { name: "CONTRARIAN", role: "Devil's Advocate",       color: "#f87171", quote: "Distribution risk too high." },
+  { name: "SWE-1",      role: "Builder Agent",          color: "#fbbf24", quote: "Scaffolded 14 files…" },
+  { name: "SWE-2",      role: "Reviewer Agent",         color: "#38bdf8", quote: "All checks passing ✓" },
 ];
 
 function AgentCard({ a, i }: { a: typeof AGENTS[0]; i: number }) {
@@ -412,7 +412,7 @@ function AgentCard({ a, i }: { a: typeof AGENTS[0]; i: number }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="grid h-9 w-9 place-items-center rounded-lg border border-white/8 bg-white/[0.04]">
-            <span className="mono text-[10px] font-bold text-foreground/80">{a.name.slice(0,2)}</span>
+            <span className="mono text-[10px] font-bold" style={{ color: a.color }}>{a.name.slice(0,2)}</span>
           </div>
           <div>
             <div className="display text-sm font-semibold">{a.name}</div>
@@ -448,11 +448,11 @@ function Council() {
 /* --------------------------- Karpathy Council Orbit -------------------------- */
 
 const PERSONAS = [
-  "The Contrarian",
-  "First Principles Thinker",
-  "The Expansionist",
-  "The Outsider",
-  "The Executor",
+  { name: "The Contrarian",            color: "#f87171" },
+  { name: "First Principles Thinker",  color: "#60a5fa" },
+  { name: "The Expansionist",          color: "#a78bfa" },
+  { name: "The Outsider",              color: "#34d399" },
+  { name: "The Executor",              color: "#fbbf24" },
 ];
 
 function CouncilOrbit() {
@@ -477,14 +477,14 @@ function CouncilOrbit() {
               </div>
             </div>
           </div>
-          {PERSONAS.map((name, i) => {
+          {PERSONAS.map((p, i) => {
             const angle = (i / PERSONAS.length) * Math.PI * 2;
             const r = 42;
             const x = 50 + Math.cos(angle) * r;
             const y = 50 + Math.sin(angle) * r;
             return (
               <motion.div
-                key={name}
+                key={p.name}
                 initial={{ opacity: 0, scale: 0.7 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -493,8 +493,8 @@ function CouncilOrbit() {
                 style={{ left: `${x}%`, top: `${y}%` }}
               >
                 <div className="glass flex items-center gap-2 rounded-full px-3 py-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
-                  <span className="mono text-[11px] font-medium whitespace-nowrap">{name}</span>
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: p.color }} />
+                  <span className="mono text-[11px] font-medium whitespace-nowrap">{p.name}</span>
                 </div>
               </motion.div>
             );
