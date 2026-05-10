@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import StageIndicator from "@/components/StageIndicator";
 import AgentBlock from "@/components/AgentBlock";
+import Spinner from "@/components/Spinner";
 import { ViralCards, CompetitorList } from "@/components/ResearchCards";
 import MvpPreview from "@/components/MvpPreview";
 import type { Stage, SSEEvent, ResearchData, PrototypeFiles } from "@/lib/types";
@@ -238,7 +239,7 @@ export default function Home() {
                 />
               ))}
 
-              {gatePrompt && !running && (
+              {gatePrompt && (
                 <div className="px-4 py-5">
                   <div className="rounded-lg border border-neutral-700 bg-neutral-900/60 p-4">
                     <p className="text-sm text-neutral-200 mb-3">
@@ -246,9 +247,16 @@ export default function Home() {
                     </p>
                     <button
                       onClick={handleProceed}
-                      className="px-4 py-2 bg-white text-black text-sm font-semibold rounded-md hover:bg-neutral-200 transition-colors"
+                      disabled={running}
+                      className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-md hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Proceed
+                      {running && (
+                        <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      )}
+                      {running ? "Loading..." : "Proceed"}
                     </button>
                   </div>
                 </div>
@@ -262,6 +270,10 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
+              )}
+
+              {running && !activeAgent && (
+                <Spinner label="Preparing next stage..." />
               )}
             </div>
           )}
@@ -285,8 +297,14 @@ export default function Home() {
             <button
               onClick={handleSummon}
               disabled={running || !idea.trim() || stage !== "idle"}
-              className="px-5 py-2.5 bg-white text-black text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap"
             >
+              {running && stage === "ideation_cmo" && !activeAgent && (
+                <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              )}
               Summon Council
             </button>
           </div>

@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
           const stage: Stage = action === "ideation_cmo" ? "ideation_cmo" : "ideation_cto";
           updateStage(sessionId, stage);
 
-          const { source, council } = getCouncil(
+          const { source, council } = await getCouncil(
             role as "CMO" | "CTO",
             session.idea
           );
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
 
         case "ideation_ceo": {
           updateStage(sessionId, "ideation_ceo");
-          const { source, verdict } = getCEO(
+          const { source, verdict } = await getCEO(
             session.idea,
             session.artifacts.cmo || "",
             session.artifacts.cto || ""
@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
 
         case "prototyping_build": {
           updateStage(sessionId, "prototyping_build");
-          const { source, narrative, files } = getSWE1(session.idea);
+          const { source, narrative, files } = await getSWE1(session.idea);
           await write({ type: "meta", source });
 
           await write({
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
 
         case "prototyping_review": {
           updateStage(sessionId, "prototyping_review");
-          const { source, review } = getSWE2(session.idea);
+          const { source, review } = await getSWE2(session.idea);
           await write({ type: "meta", source });
 
           await write({
