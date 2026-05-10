@@ -24,6 +24,7 @@ export default function Home() {
   const [source, setSource] = useState<"demo" | "live">("demo");
   const [research, setResearch] = useState<ResearchData | null>(null);
   const [prototype, setPrototype] = useState<PrototypeFiles | null>(null);
+  const [previewMinimized, setPreviewMinimized] = useState(false);
   const [gatePrompt, setGatePrompt] = useState<string | null>(null);
   const [pendingGateStage, setPendingGateStage] = useState<Stage | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -171,7 +172,9 @@ export default function Home() {
     <div className="flex h-screen bg-black text-white">
       {/* Main panel */}
       <div
-        className={`flex flex-col flex-1 min-w-0 ${showPreview ? "w-1/2" : "w-full"}`}
+        className={`flex min-w-0 flex-col flex-1 ${
+          showPreview && !previewMinimized ? "w-1/2" : "w-full"
+        }`}
       >
         {/* Header */}
         <header className="flex items-center justify-between border-b border-neutral-800 px-5 py-3">
@@ -277,8 +280,17 @@ export default function Home() {
 
       {/* Preview panel */}
       {showPreview && (
-        <div className="w-1/2 border-l border-neutral-800 flex flex-col">
-          <MvpPreview files={prototype} />
+        <div
+          className={`flex shrink-0 flex-col border-l border-neutral-800 transition-[width] duration-200 ease-out ${
+            previewMinimized ? "w-12" : "w-1/2"
+          }`}
+        >
+          <MvpPreview
+            files={prototype}
+            minimized={previewMinimized}
+            onMinimize={() => setPreviewMinimized(true)}
+            onExpand={() => setPreviewMinimized(false)}
+          />
         </div>
       )}
     </div>

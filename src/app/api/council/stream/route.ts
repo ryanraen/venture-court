@@ -5,6 +5,18 @@ import { getCouncil, getCEO, getSWE1, getSWE2 } from "@/lib/llm";
 import { getResearch } from "@/lib/nia";
 import { Stage } from "@/lib/types";
 
+/** Next.js closes the SSE when the client disconnects — writes then reject (e.g. ResponseAborted). */
+function isConnectionLost(err: unknown): boolean {
+  if (err == null) return false;
+  const e = err as { name?: string; message?: string; constructor?: { name?: string } };
+  if (e.name === "ResponseAborted" || e.name === "AbortError") return true;
+  if (e.constructor?.name === "ResponseAborted") return true;
+  const msg = typeof e.message === "string" ? e.message : "";
+  if (/ResponseAborted|Invalid state.*WritableStream|closed/i.test(msg))
+    return true;
+  return false;
+}
+
 type Action =
   | "ideation_cmo"
   | "ideation_cto"
@@ -28,8 +40,9 @@ export async function POST(req: NextRequest) {
 
   const { stream, writer, encoder } = createSSEStream();
 
-  const write = (data: Parameters<typeof encodeSSE>[0]) =>
-    writer.write(encoder.encode(encodeSSE(data)));
+  const write = async (data: Parameters<typeof encodeSSE>[0]) => {
+    await writer.write(encoder.encode(encodeSSE(data)));
+  };
 
   // Run the pipeline in the background
   (async () => {
@@ -205,14 +218,25 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch (err) {
-      await write({
-        type: "error",
-        message: err instanceof Error ? err.message : "Unknown error",
-      });
+      if (isConnectionLost(err)) return;
+      try {
+        await write({
+          type: "error",
+          message: err instanceof Error ? err.message : "Unknown error",
+        });
+      } catch {
+        /* stream already closed */
+      }
     } finally {
-      await writer.close();
+      try {
+        await writer.close();
+      } catch {
+        // Writable already closed (client disconnected, navigation, or stream drained)
+      }
     }
-  })();
+  })().catch((err) => {
+    if (!isConnectionLost(err)) console.error("SSE pipeline error:", err);
+  });
 
   return new Response(stream, {
     headers: {

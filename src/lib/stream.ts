@@ -6,24 +6,28 @@ export function encodeSSE(event: SSEEvent): string {
 
 /**
  * Stream a string chunk-by-chunk with small delays to simulate
- * token-level LLM output.
+ * token-level LLM output. Stops silently if the client disconnects.
  */
 export async function streamText(
   writer: WritableStreamDefaultWriter<Uint8Array>,
   encoder: TextEncoder,
-  agent: string,
+  _agent: string,
   text: string,
   chunkSize = 12,
   delayMs = 30
 ): Promise<void> {
+  void _agent;
   for (let i = 0; i < text.length; i += chunkSize) {
     const chunk = text.slice(i, i + chunkSize);
-    await writer.write(
-      encoder.encode(encodeSSE({ type: "chunk", content: chunk }))
-    );
+    try {
+      await writer.write(
+        encoder.encode(encodeSSE({ type: "chunk", content: chunk }))
+      );
+    } catch {
+      return;
+    }
     await sleep(delayMs);
   }
-  void agent;
 }
 
 export function sleep(ms: number): Promise<void> {

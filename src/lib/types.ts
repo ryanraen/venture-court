@@ -50,6 +50,19 @@ export interface PrototypeFiles {
   js: string;
 }
 
+/** Scripted council fan-out for demo fixtures */
+export interface PersonaOutput {
+  persona: string;
+  label: string;
+  content: string;
+}
+
+export interface CouncilOutput {
+  role: string;
+  personas: PersonaOutput[];
+  chair: string;
+}
+
 // SSE event types streamed to the client
 export type SSEEvent =
   | { type: "agent_start"; agent: string; persona?: string; label: string }

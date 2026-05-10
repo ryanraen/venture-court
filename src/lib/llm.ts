@@ -4,8 +4,8 @@ import {
   getCEOVerdict,
   getSWE1BuildNarrative,
   getSWE2ReviewNarrative,
-  CouncilOutput,
 } from "./fallbacks/clod-examples";
+import type { CouncilOutput } from "./types";
 
 const isDemo = () =>
   process.env.FORCE_DEMO_MODE === "true" || !process.env.CLOD_API_KEY;
