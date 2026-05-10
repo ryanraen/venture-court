@@ -1,5 +1,6 @@
 /** Generic scripted demo — every section anchors on the user's exact idea string. */
 
+import { plainTextDigest } from "@/lib/plain-text";
 import type { CouncilOutput } from "@/lib/types";
 
 function esc(s: string): string {
@@ -97,8 +98,9 @@ We don't yet have category-specific numbers in this scripted pass; treat this as
 **Next:** ship the thinnest experiment (landing + waitlist or concierge MVP), 10 structured interviews, decide pivot/persist.
 
 ---
-CMO: ${cmoSummary.slice(0, 120)}…
-CTO: ${ctoSummary.slice(0, 120)}…`;
+**CMO digest:** ${plainTextDigest(cmoSummary, 180)}
+
+**CTO digest:** ${plainTextDigest(ctoSummary, 180)}`;
 }
 
 export function getGenericSWE1BuildNarrative(idea: string): {

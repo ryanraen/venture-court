@@ -1,5 +1,6 @@
 /** Job-search vertical — scripted demo (ApplyCopilot-style). */
 
+import { plainTextDigest } from "@/lib/plain-text";
 import type { CouncilOutput } from "@/lib/types";
 
 export function getJobCMOCouncil(idea: string): CouncilOutput {
@@ -109,8 +110,9 @@ The 2026 market is shifting from volume-first mass applications to quality-first
 *This verdict is based on council analysis. The final decision rests with the founder.*
 
 ---
-**CMO Summary:** ${cmoSummary.slice(0, 120)}...
-**CTO Summary:** ${ctoSummary.slice(0, 120)}...`;
+**CMO summary:** ${plainTextDigest(cmoSummary, 200)}
+
+**CTO summary:** ${plainTextDigest(ctoSummary, 200)}`;
 }
 
 export function getJobSWE1BuildNarrative(idea: string): { narrative: string; files: { html: string; css: string; js: string } } {

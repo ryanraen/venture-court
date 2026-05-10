@@ -1,5 +1,6 @@
 /** Health / calorie / meal-photo + on-device CV vertical */
 
+import { plainTextDigest } from "@/lib/plain-text";
 import type { CouncilOutput } from "@/lib/types";
 
 export function getNutritionCMOCouncil(idea: string): CouncilOutput {
@@ -88,8 +89,9 @@ export function getNutritionCEOVerdict(
 **Next steps:** (1) Figma + pitch to 20 target users (2) iOS MVP with Core ML path + local-only photos (3) measure streak retention week 2 vs. industry churn benchmarks
 
 ---
-CMO digest: ${cmoSummary.slice(0, 100)}…
-CTO digest: ${ctoSummary.slice(0, 100)}…`;
+**CMO digest:** ${plainTextDigest(cmoSummary, 160)}
+
+**CTO digest:** ${plainTextDigest(ctoSummary, 160)}`;
 }
 
 export function getNutritionSWE1BuildNarrative(idea: string): {
