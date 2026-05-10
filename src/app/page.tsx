@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, type ReactNode } from "react";
 import StageIndicator from "@/components/StageIndicator";
 import AgentBlock from "@/components/AgentBlock";
 import Spinner from "@/components/Spinner";
@@ -16,6 +16,70 @@ interface AgentEntry {
 }
 
 const SWE_AGENT_IDS = new Set(["SWE1", "SWE2"]);
+const IDEATION_AGENT_IDS = new Set(["CMO", "CMO_chair", "CTO", "CTO_chair", "CEO"]);
+const RESEARCH_AGENT_IDS = new Set(["researcher", "synthesis", "contrarian"]);
+const RESEARCH_AGENT_ORDER = ["researcher", "synthesis", "contrarian"];
+
+type Ribbon = "ideation" | "research" | "prototype";
+
+function ribbonForStage(stage: Stage): Ribbon {
+  if (stage === "idle") return "ideation";
+  if (
+    stage === "ideation_cmo" ||
+    stage === "ideation_cto" ||
+    stage === "ideation_ceo" ||
+    stage === "gate_research"
+  ) {
+    return "ideation";
+  }
+  if (stage === "market_research" || stage === "gate_prototype") {
+    return "research";
+  }
+  if (
+    stage === "prototyping_build" ||
+    stage === "prototyping_review" ||
+    stage === "complete"
+  ) {
+    return "prototype";
+  }
+  return "ideation";
+}
+
+function PhaseBand({
+  eyebrow,
+  title,
+  highlight,
+  borderClass,
+  bgClass,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  highlight: boolean;
+  borderClass: string;
+  bgClass: string;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      className={`border-l-[3px] pl-5 pr-2 py-1 ${borderClass} ${highlight ? `${bgClass} ring-1 ring-inset ring-white/[0.07]` : "bg-black/30"}`}
+    >
+      <header className="py-4 pr-4">
+        <div className="flex flex-wrap items-baseline gap-2">
+          <span
+            className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${highlight ? "text-neutral-400" : "text-neutral-600"}`}
+          >
+            {eyebrow}
+          </span>
+          <h2 className={`text-sm font-semibold tracking-tight ${highlight ? "text-white" : "text-neutral-500"}`}>
+            {title}
+          </h2>
+        </div>
+      </header>
+      <div className="-ml-1">{children}</div>
+    </section>
+  );
+}
 
 export default function Home() {
   const [idea, setIdea] = useState("");
@@ -244,6 +308,45 @@ export default function Home() {
   const agentsMain = agents.filter((a) => !SWE_AGENT_IDS.has(a.id));
   const agentsSwe = agents.filter((a) => SWE_AGENT_IDS.has(a.id));
 
+  const agentsIdeation = useMemo(
+    () => agentsMain.filter((a) => IDEATION_AGENT_IDS.has(a.id)),
+    [agentsMain]
+  );
+  const agentsResearch = useMemo(
+    () => agentsMain.filter((a) => RESEARCH_AGENT_IDS.has(a.id)),
+    [agentsMain]
+  );
+
+  const ribbon = useMemo(() => ribbonForStage(stage), [stage]);
+
+  const showPrepCeoGate =
+    !!gatePrompt &&
+    pendingGateStage === "gate_research" &&
+    gatePrompt.includes("Proceed to CEO");
+  const showResearchGate =
+    !!gatePrompt &&
+    pendingGateStage === "gate_research" &&
+    gatePrompt.includes("Market Research");
+  const showPrototypeGate =
+    !!gatePrompt && pendingGateStage === "gate_prototype";
+
+  const proceedBtn = (
+    <button
+      type="button"
+      onClick={handleProceed}
+      disabled={running}
+      className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-md hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {running && (
+        <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      )}
+      {running ? "Loading..." : "Proceed"}
+    </button>
+  );
+
   return (
     <div className="flex h-screen bg-black text-white">
       {/* Main panel */}
@@ -281,66 +384,113 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-neutral-800/40">
-              {agentsMain.map((a) => (
-                <AgentBlock
-                  key={a.id + a.label}
-                  label={a.label}
-                  content={a.content}
-                  isActive={activeAgent === a.id}
-                  isDone={a.done}
-                />
-              ))}
-
-              {research && (
-                <>
-                  <ViralCards cards={research.cards} />
-                  <CompetitorList competitors={research.competitors} />
-                </>
-              )}
-
-              {agentsSwe.map((a) => (
-                <AgentBlock
-                  key={a.id + a.label}
-                  label={a.label}
-                  content={a.content}
-                  isActive={activeAgent === a.id}
-                  isDone={a.done}
-                />
-              ))}
-
-              {gatePrompt && (
-                <div className="px-4 py-5">
-                  <div className="rounded-lg border border-neutral-700 bg-neutral-900/60 p-4">
-                    <p className="text-sm text-neutral-200 mb-3">
-                      {gatePrompt}
-                    </p>
-                    <button
-                      onClick={handleProceed}
-                      disabled={running}
-                      className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-md hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {running && (
-                        <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                      )}
-                      {running ? "Loading..." : "Proceed"}
-                    </button>
+            <div className="flex flex-col gap-px pb-8">
+              <PhaseBand
+                eyebrow="Phase 01"
+                title="Ideation"
+                highlight={ribbon === "ideation"}
+                borderClass="border-l-neutral-600"
+                bgClass="bg-neutral-950/75"
+              >
+                {agentsIdeation.map((a) => (
+                  <AgentBlock
+                    key={a.id + a.label}
+                    label={a.label}
+                    content={a.content}
+                    isActive={activeAgent === a.id}
+                    isDone={a.done}
+                  />
+                ))}
+                {showPrepCeoGate && (
+                  <div className="px-4 py-5">
+                    <div className="rounded-lg border border-neutral-700 bg-neutral-900/85 p-4">
+                      <p className="text-sm text-neutral-200 mb-3">{gatePrompt}</p>
+                      {proceedBtn}
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {stage === "complete" && (
-                <div className="px-4 py-5">
-                  <div className="rounded-lg border border-neutral-700 bg-neutral-900/60 p-4 text-center">
-                    <p className="text-sm text-neutral-200">
-                      All stages complete. Your MVP is ready for review.
-                    </p>
+                )}
+                {showResearchGate && (
+                  <div className="px-4 py-5">
+                    <div className="rounded-lg border border-neutral-700 bg-neutral-900/85 p-4">
+                      <p className="text-sm text-neutral-200 mb-3">{gatePrompt}</p>
+                      {proceedBtn}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </PhaseBand>
+
+              <PhaseBand
+                eyebrow="Phase 02"
+                title="Market research"
+                highlight={ribbon === "research"}
+                borderClass="border-l-neutral-400"
+                bgClass="bg-neutral-900/45"
+              >
+                {agentsResearch
+                  .filter((a) => a.id === "researcher")
+                  .map((a) => (
+                    <AgentBlock
+                      key={a.id + a.label}
+                      label={a.label}
+                      content={a.content}
+                      isActive={activeAgent === a.id}
+                      isDone={a.done}
+                    />
+                  ))}
+                {research && (
+                  <>
+                    <ViralCards cards={research.cards} />
+                    <CompetitorList competitors={research.competitors} />
+                  </>
+                )}
+                {agentsResearch
+                  .filter((a) => a.id === "synthesis" || a.id === "contrarian")
+                  .sort((a, b) => RESEARCH_AGENT_ORDER.indexOf(a.id) - RESEARCH_AGENT_ORDER.indexOf(b.id))
+                  .map((a) => (
+                    <AgentBlock
+                      key={a.id + a.label}
+                      label={a.label}
+                      content={a.content}
+                      isActive={activeAgent === a.id}
+                      isDone={a.done}
+                    />
+                  ))}
+                {showPrototypeGate && (
+                  <div className="px-4 py-5">
+                    <div className="rounded-lg border border-neutral-700 bg-neutral-900/85 p-4">
+                      <p className="text-sm text-neutral-200 mb-3">{gatePrompt}</p>
+                      {proceedBtn}
+                    </div>
+                  </div>
+                )}
+              </PhaseBand>
+
+              <PhaseBand
+                eyebrow="Phase 03"
+                title="Prototype"
+                highlight={ribbon === "prototype"}
+                borderClass="border-l-neutral-300"
+                bgClass="bg-neutral-950/60"
+              >
+                {agentsSwe.map((a) => (
+                  <AgentBlock
+                    key={a.id + a.label}
+                    label={a.label}
+                    content={a.content}
+                    isActive={activeAgent === a.id}
+                    isDone={a.done}
+                  />
+                ))}
+                {stage === "complete" && (
+                  <div className="px-4 py-5">
+                    <div className="rounded-lg border border-neutral-700 bg-neutral-900/70 p-4 text-center">
+                      <p className="text-sm text-neutral-200">
+                        All stages complete. Your MVP is ready for review.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </PhaseBand>
 
               {running && !activeAgent && (
                 <Spinner label="Preparing next stage..." />
