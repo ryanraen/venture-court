@@ -3,6 +3,8 @@
  * Each builder returns { system, user, maxTokens } for clodChat().
  */
 
+import type { PrototypeFiles } from "./types";
+
 // ── Council (CMO / CTO) ─────────────────────────────────────────────
 
 export function councilPrompt(role: "CMO" | "CTO", idea: string) {
@@ -100,7 +102,7 @@ The page should feel like a real product landing page, not a placeholder. Tailor
 
 // ── SWE2 (Code Review) ──────────────────────────────────────────────
 
-export function swe2Prompt(idea: string, code?: { html: string; css: string; js: string }) {
+export function swe2Prompt(idea: string, code?: PrototypeFiles) {
   const system = `You are SWE 2, a senior engineer performing a code review of an MVP landing page built for a startup idea. Write a structured code review in markdown.
 
 Structure:

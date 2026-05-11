@@ -9,6 +9,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "idea is required" }, { status: 400 });
   }
   const trimmed = idea.trim();
+  if (!trimmed) {
+    return NextResponse.json({ error: "idea is required" }, { status: 400 });
+  }
   if (trimmed.length > 1000) {
     return NextResponse.json({ error: "idea must be 1000 characters or fewer" }, { status: 400 });
   }
