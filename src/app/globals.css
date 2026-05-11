@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #fafafa;
+  --card: #080808;
+  --card-foreground: #fafafa;
+  --muted: #0e0e0e;
+  --muted-foreground: #666666;
+  --border: rgba(255, 255, 255, 0.06);
+
+  --gradient-hero: radial-gradient(600px 300px at 50% 0%, rgba(255,255,255,0.025), transparent 70%);
+  --gradient-text: linear-gradient(135deg, #ffffff 0%, #777777 100%);
+  --gradient-border: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  --shadow-glow: 0 0 30px -10px rgba(255,255,255,0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --font-sans: var(--font-geist-sans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-inter), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-grid-flow: grid-flow 20s linear infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-blink: blink 1s steps(1) infinite;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+::selection { background: rgba(255,255,255,0.15); color: white; }
+
+/* ── Landing page utilities ── */
+
+.text-gradient {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.glass {
+  background: rgba(8,8,8,0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.glass-strong {
+  background: rgba(6,6,6,0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.ring-glow {
+  box-shadow: var(--shadow-glow);
+}
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 40%, transparent 80%);
+}
+.hero-bg { background-image: var(--gradient-hero); }
+.border-gradient {
+  position: relative;
+  background-clip: padding-box;
+}
+.border-gradient::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-border);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+.mono { font-family: var(--font-mono); }
+.display { font-family: var(--font-display); letter-spacing: -0.03em; }
+
+@keyframes pulse-glow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.04), 0 0 12px -4px rgba(255,255,255,0.08); }
+  50% { box-shadow: 0 0 0 3px rgba(255,255,255,0), 0 0 20px -4px rgba(255,255,255,0.1); }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes grid-flow {
+  0% { background-position: 0 0; }
+  100% { background-position: 64px 64px; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ── Scrollbar ── */
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+/* ── Council page prose styling ── */
+
+.prose-sm h1, .prose-sm h2, .prose-sm h3 {
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+.prose-sm h1 { font-size: 1.25rem; }
+.prose-sm h2 { font-size: 1.1rem; }
+.prose-sm h3 { font-size: 1rem; }
+.prose-sm strong { color: #fff; }
+.prose-sm ul, .prose-sm ol {
+  padding-left: 1.25rem;
+  margin: 0.5em 0;
+}
+.prose-sm li { margin-bottom: 0.25em; }
+.prose-sm code {
+  background: #1a1a1a;
+  padding: 0.15em 0.35em;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+.prose-sm table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75em 0;
+  font-size: 0.85em;
+}
+.prose-sm th, .prose-sm td {
+  padding: 0.4em 0.75em;
+  border: 1px solid #333;
+  text-align: left;
+}
+.prose-sm th {
+  background: #111;
+  font-weight: 600;
+}
