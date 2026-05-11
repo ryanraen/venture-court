@@ -1,8 +1,30 @@
 import { Session, Stage } from "./types";
 
+const MAX_SESSIONS = 500;
+const SESSION_TTL_MS = 60 * 60 * 1000; // 1 hour
+
 const sessions = new Map<string, Session>();
+const sessionCreatedAt = new Map<string, number>();
+
+function evictStale() {
+  const now = Date.now();
+  for (const [id, created] of sessionCreatedAt) {
+    if (now - created > SESSION_TTL_MS) {
+      sessions.delete(id);
+      sessionCreatedAt.delete(id);
+    }
+  }
+}
 
 export function createSession(idea: string): Session {
+  evictStale();
+
+  if (sessions.size >= MAX_SESSIONS) {
+    const oldest = sessionCreatedAt.keys().next().value!;
+    sessions.delete(oldest);
+    sessionCreatedAt.delete(oldest);
+  }
+
   const id = crypto.randomUUID();
   const session: Session = {
     id,
@@ -11,6 +33,7 @@ export function createSession(idea: string): Session {
     artifacts: {},
   };
   sessions.set(id, session);
+  sessionCreatedAt.set(id, Date.now());
   return session;
 }
 

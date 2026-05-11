@@ -178,6 +178,7 @@ export async function getSWE1(
 
 export async function getSWE2(
   idea: string,
+  code?: PrototypeFiles,
 ): Promise<{ source: "demo" | "live"; review: string }> {
   const demoReview = getSWE2ReviewNarrative(idea);
 
@@ -186,7 +187,7 @@ export async function getSWE2(
   }
 
   const model = process.env.CLOD_MODEL_REVIEW || undefined;
-  const { system, user, maxTokens } = swe2Prompt(idea);
+  const { system, user, maxTokens } = swe2Prompt(idea, code);
   const raw = await clodChat(system, user, maxTokens, model);
   if (!raw || raw.length < 30) return { source: "demo", review: demoReview };
 
